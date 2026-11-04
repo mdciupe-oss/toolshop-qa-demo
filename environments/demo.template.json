@@ -1,0 +1,98 @@
+{
+	"id": "9d740a89-62ba-4a29-af99-b515bc5cbf97",
+	"name": "Toolshop - Demo",
+	"values": [
+		{
+			"key": "base_Url",
+			"value": "https://api.practicesoftwaretesting.com",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "admin_email",
+			"value": "admin@practicesoftwaretesting.com",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "admin_pwd",
+			"value": "",
+			"type": "default",
+			"enabled": true,
+			"secret": true
+		},
+		{
+			"key": "customer_email",
+			"value": "customer@practicesoftwaretesting.com",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "customer_pwd",
+			"value": "",
+			"type": "default",
+			"enabled": true,
+			"secret": true
+		},
+		{
+			"key": "admin_auth_token",
+			"value": "",
+			"type": "default",
+			"enabled": true,
+			"secret": true
+		},
+		{
+			"key": "cust_auth_token",
+			"value": "",
+			"type": "default",
+			"enabled": true,
+			"secret": true
+		},
+		{
+			"key": "category_id",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "brand_id",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "product_image_id",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "prd_name_filter",
+			"value": "tool",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "new_product_id",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "category_slug",
+			"value": "hand-tools",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "category_name",
+			"value": "Pliers",
+			"type": "default",
+			"enabled": true
+		}
+	],
+	"color": null,
+	"_postman_variable_scope": "environment",
+	"_postman_exported_at": "2026-11-04T02:59:03.796Z",
+	"_postman_exported_using": "Postman/12.25.6"
+}

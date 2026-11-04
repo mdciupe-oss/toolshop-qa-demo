@@ -1,0 +1,15 @@
+# Installed Node dependencies
+node_modules/
+reports/
+# Local environment files containing private values
+*.local.json
+environments/*.json
+!environments/*.template.json
+.env
+playwright-report/
+test-results/
+.DS_Store
+~$*
+*.tmp
+~WRL*
+.vscode/

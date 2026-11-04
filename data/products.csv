@@ -1,0 +1,5 @@
+name,price,expectedStatus
+Valid Hammer,15.99,201
+Empty Name,10.00,422
+Negative Price,-5,422
+Zero Price,0,422

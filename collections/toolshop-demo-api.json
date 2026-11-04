@@ -1,0 +1,1043 @@
+{
+  "info": {
+    "_postman_id": "1bcb5340-808c-4e4e-8514-848b3d15e131",
+    "name": "DemoCollection",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "57006331",
+    "_collection_link": "https://go.postman.co/collection/57006331-1bcb5340-808c-4e4e-8514-848b3d15e131?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "00 Setup",
+      "item": [
+        {
+          "name": "Reset variables",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.environment.set(\"category_id\", \"\");\r",
+                  "pm.environment.set(\"brand_id\", \"\");\r",
+                  "pm.environment.set(\"product_image_id\", \"\");\r",
+                  "pm.environment.set(\"new_product_id\", \"\");\r",
+                  "pm.environment.set(\"admin_auth_token\", \"\");\r",
+                  "pm.environment.set(\"cust_auth_token\", \"\");\r",
+                  "\r",
+                  "pm.collectionVariables.set(\"coll_new_prod_id\", \"\");"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_Url}}/products",
+              "host": [
+                "{{base_Url}}"
+              ],
+              "path": [
+                "products"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Admin login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.environment.set(\"admin_auth_token\", pm.response.json().access_token);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"{{admin_email}}\",\r\n    \"password\": \"{{admin_pwd}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_Url}}/users/login",
+              "host": [
+                "{{base_Url}}"
+              ],
+              "path": [
+                "users",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Customer login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.environment.set(\"cust_auth_token\", pm.response.json().access_token);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{cust_auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"{{customer_email}}\",\r\n    \"password\": \"{{customer_pwd}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_Url}}/users/login",
+              "host": [
+                "{{base_Url}}"
+              ],
+              "path": [
+                "users",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "01 Products",
+      "item": [
+        {
+          "name": "Get all products",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const body = pm.response.json();\r",
+                  "const first_category = body.data[0].category;\r",
+                  "const first_brand = body.data[0].brand;\r",
+                  "const first_product_image = body.data[0].product_image;\r",
+                  "\r",
+                  "pm.environment.set(\"category_id\", first_category.id);\r",
+                  "pm.environment.set(\"brand_id\", first_brand.id);\r",
+                  "pm.environment.set(\"product_image_id\", first_product_image.id);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_Url}}/products?sort=price,desc",
+              "host": [
+                "{{base_Url}}"
+              ],
+              "path": [
+                "products"
+              ],
+              "query": [
+                {
+                  "key": "sort",
+                  "value": "price,desc"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get product",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_Url}}/products?by_brand={{brand_id}}&by_category={{category_id}}",
+              "host": [
+                "{{base_Url}}"
+              ],
+              "path": [
+                "products"
+              ],
+              "query": [
+                {
+                  "key": "by_brand",
+                  "value": "{{brand_id}}"
+                },
+                {
+                  "key": "by_category",
+                  "value": "{{category_id}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get prod in price range",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_Url}}/products?sort=price,asc&between=price,10,20",
+              "host": [
+                "{{base_Url}}"
+              ],
+              "path": [
+                "products"
+              ],
+              "query": [
+                {
+                  "key": "sort",
+                  "value": "price,asc"
+                },
+                {
+                  "key": "between",
+                  "value": "price,10,20"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get rental products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_Url}}/products?is_rental=1",
+              "host": [
+                "{{base_Url}}"
+              ],
+              "path": [
+                "products"
+              ],
+              "query": [
+                {
+                  "key": "is_rental",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Filter name products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_Url}}/products/search?q={{prd_name_filter}}",
+              "host": [
+                "{{base_Url}}"
+              ],
+              "path": [
+                "products",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "{{prd_name_filter}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "02 Brands",
+      "item": [
+        {
+          "name": "Get all brands",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_Url}}/brands",
+              "host": [
+                "{{base_Url}}"
+              ],
+              "path": [
+                "brands"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get brand by brandId",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_Url}}/brands/{{brand_id}}",
+              "host": [
+                "{{base_Url}}"
+              ],
+              "path": [
+                "brands",
+                "{{brand_id}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "03 Categories",
+      "item": [
+        {
+          "name": "Get all categories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_Url}}/categories",
+              "host": [
+                "{{base_Url}}"
+              ],
+              "path": [
+                "categories"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get category by slug",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "// {\r\n//   \"by_category_slug\": \"{{category_slug}}\"\r\n// }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_Url}}/categories/tree?by_category_slug={{category_slug}}",
+              "host": [
+                "{{base_Url}}"
+              ],
+              "path": [
+                "categories",
+                "tree"
+              ],
+              "query": [
+                {
+                  "key": "by_category_slug",
+                  "value": "{{category_slug}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get sub category",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_Url}}/categories/search?q=pliers",
+              "host": [
+                "{{base_Url}}"
+              ],
+              "path": [
+                "categories",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "pliers"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "04 Users",
+      "item": [
+        {
+          "name": "Get all users",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_Url}}/users",
+              "host": [
+                "{{base_Url}}"
+              ],
+              "path": [
+                "users"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "05 Prod CRUD",
+      "item": [
+        {
+          "name": "Create prod - valid",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const body = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Status code is 201\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "    pm.expect(body.id).to.exist;\r",
+                  "})\r",
+                  "\r",
+                  "pm.environment.set(\"new_product_id\", body.id); // Set the new product ID in the environment variable"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"{{$randomProductName}}\",\r\n  \"description\": \"Created during my API testing practice , {{$randomEmail}},   {{$randomFirstName}}\",\r\n  \"price\": 12.50,\r\n  \"brand_id\": \"{{brand_id}}\",\r\n  \"category_id\": \"{{category_id}}\",\r\n  \"product_image_id\": \"{{product_image_id}}\",\r\n  \"is_location_offer\": false,\r\n  \"is_rental\": false,\r\n  \"co2_rating\": \"A\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_Url}}/products",
+              "host": [
+                "{{base_Url}}"
+              ],
+              "path": [
+                "products"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get new product",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Record found / Status code is 200\", function () {\r",
+                  "    pm.expect(pm.response.code).to.equal(200);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{base_Url}}/products/{{new_product_id}}",
+              "host": [
+                "{{base_Url}}"
+              ],
+              "path": [
+                "products",
+                "{{new_product_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Patch new product",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"updated name\",\r\n  \"description\": \"updated description\",\r\n  \"price\": 1.99,\r\n  \"category_id\": \"{{category_id}}\",\r\n  \"brand_id\": \"{{brand_id}}\",\r\n  \"product_image_id\": \"{{product_image_id}}\",\r\n  \"is_location_offer\": 1,\r\n  \"is_rental\": 0,\r\n  \"co2_rating\": \"E\"\r\n}"
+            },
+            "url": {
+              "raw": "{{base_Url}}/products/{{new_product_id}}",
+              "host": [
+                "{{base_Url}}"
+              ],
+              "path": [
+                "products",
+                "{{new_product_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get new product",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Record found / Status code is 200\", function () {\r",
+                  "    pm.expect(pm.response.code).to.equal(200);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{base_Url}}/products/{{new_product_id}}",
+              "host": [
+                "{{base_Url}}"
+              ],
+              "path": [
+                "products",
+                "{{new_product_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete prod - valid",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// const body = pm.response.json();\r",
+                  "// pm.collectionVariables.set(\"createdPrdId\", body.id);\r",
+                  "\r",
+                  "// pm.test(\"Status code is 201\", function () {\r",
+                  "//     pm.response.to.have.status(201);\r",
+                  "//     pm.expect(body.id).to.exist;\r",
+                  "\r",
+                  "// })"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "// {\r\n//   \"name\": \"{{$randomProductName}}\",\r\n//   \"description\": \"Created during API testing practice , {{$randomEmail}},   {{$randomFirstName}}\",\r\n//   \"price\": 22.50,\r\n//   \"brand_id\": \"01M67TZEVKNMDQA6QEZJ6B6BP4\",\r\n//   \"category_id\": \"01M67TZFA2EFBDKEA9M1X9JW2F\",\r\n//   \"product_image_id\": \"01M67TZFAGBEKGHR7HRXK4WP46\",\r\n//   \"is_location_offer\": false,\r\n//   \"is_rental\": false,\r\n//   \"co2_rating\": \"A\"\r\n// }\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_Url}}/products/{{new_product_id}}",
+              "host": [
+                "{{base_Url}}"
+              ],
+              "path": [
+                "products",
+                "{{new_product_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get new product",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Record not found / Status code is 404\", function () {\r",
+                  "    pm.expect(pm.response.code).to.equal(404);\r",
+                  "});\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{base_Url}}/products/{{new_product_id}}",
+              "host": [
+                "{{base_Url}}"
+              ],
+              "path": [
+                "products",
+                "{{new_product_id}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "06 Prod CRUD - collection id",
+      "item": [
+        {
+          "name": "Create new prod -collection Id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const body = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Status code is 201\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "    pm.expect(body.id).to.exist;\r",
+                  "\r",
+                  "})\r",
+                  "\r",
+                  "pm.collectionVariables.set(\"coll_new_prod_id\", body.id);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "//pm.collectionVariables.set(\"createdPrdId\", \"\");\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"{{$randomProductName}}\",\r\n  \"description\": \"Created during my API testing practice , {{$randomEmail}},   {{$randomFirstName}}\",\r\n  \"price\": 12.50,\r\n  \"brand_id\": \"{{brand_id}}\",\r\n  \"category_id\": \"{{category_id}}\",\r\n  \"product_image_id\": \"{{product_image_id}}\",\r\n  \"is_location_offer\": false,\r\n  \"is_rental\": false,\r\n  \"co2_rating\": \"A\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_Url}}/products",
+              "host": [
+                "{{base_Url}}"
+              ],
+              "path": [
+                "products"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get new prod collection id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Record found / Status code is 200\", function () {\r",
+                  "    pm.expect(pm.response.code).to.equal(200);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{base_Url}}/products/{{coll_new_prod_id}}",
+              "host": [
+                "{{base_Url}}"
+              ],
+              "path": [
+                "products",
+                "{{coll_new_prod_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete prod - collection id",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_Url}}/products/{{coll_new_prod_id}}",
+              "host": [
+                "{{base_Url}}"
+              ],
+              "path": [
+                "products",
+                "{{coll_new_prod_id}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "90 Negative Tests",
+      "item": []
+    },
+    {
+      "name": "99 Scratch",
+      "item": [
+        {
+          "name": "Testing assertions",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const body = pm.response.json();\r",
+                  "pm.test(\"check response status code\", function () {\r",
+                  "    pm.expect(pm.response.code).to.eql(200);\r",
+                  "    pm.expect(pm.response.status).to.eql(\"OK\");\r",
+                  "    pm.expect(pm.response).to.have.status(200);\r",
+                  "\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Product has required fields\", function () {\r",
+                  "    pm.expect(body.data[0]).to.have.property(\"id\");\r",
+                  "    pm.expect(body.data[0]).to.have.property(\"name\");\r",
+                  "    pm.expect(body.data[0]).to.have.property(\"price\");\r",
+                  "\r",
+                  "    pm.expect(body.data[0].id).to.be.a(\"string\");\r",
+                  "    pm.expect(body.data[0].price).to.be.a(\"number\");\r",
+                  "    pm.expect(body.data[0].is_rental).to.be.a(\"boolean\");\r",
+                  "});\r",
+                  "\r",
+                  "console.log(\"pm.response.code = \" + pm.response.code + \", pm.response.status = \" + pm.response.status);\r",
+                  "\r",
+                  "var mynr = 10;\r",
+                  "var mystring = \"Hello World\";\r",
+                  "var myboolean = true;\r",
+                  "var myarray = [1, 2, 3, 4, 5];\r",
+                  "\r",
+                  "console.log(mynr + \" \" + mystring + \" \" + myboolean + \" \" + myarray[0]);\r",
+                  "\r",
+                  "const mycategory = {\r",
+                  "    id: \"01M67M3Z3YE2RMWCJKYYM35JP1\",\r",
+                  "    name: \"Workbench\",\r",
+                  "    slug: \"workbench\"\r",
+                  "};\r",
+                  "\r",
+                  "console.log(mycategory.slug);\r",
+                  "\r",
+                  "let brand = {\r",
+                  "    id: \"01M67M3YR547ZHZY7HY964P3PZ\",\r",
+                  "    name: \"ForgeFlex Tools\"\r",
+                  "};\r",
+                  "\r",
+                  "console.log(brand.name);\r",
+                  "\r",
+                  "// const product = { name: \"Hammer\", price: 12.5 };\r",
+                  "\r",
+                  "let myproduct = {\r",
+                  "    name: \"Workbench with Drawers\",\r",
+                  "    description: \"essential.\",\r",
+                  "    price: 178.2,\r",
+                  "    is_location_offer: false,\r",
+                  "    is_rental: false,\r",
+                  "    co2_rating: \"B\",\r",
+                  "    in_stock: true,\r",
+                  "    is_eco_friendly: true,\r",
+                  "    product_image: {\r",
+                  "        id: \"01M67M3Z4G09FNFRJQZ8WTM7NH\",\r",
+                  "        by_name: \"Matteo Minoglio\",\r",
+                  "        by_url: \"https://unsplash.com/@ilmino\",\r",
+                  "        source_name: \"Unsplash\",\r",
+                  "        source_url: \"https://unsplash.com/photos/opened-brown-wooden-drawers-m8-NX7WxbpM\",\r",
+                  "        file_name: \"workbench02.avif\",\r",
+                  "        title: \"Workbench with Drawers\"\r",
+                  "    }\r",
+                  "};\r",
+                  "\r",
+                  "console.log(myproduct.product_image.title);\r",
+                  "\r",
+                  "let myobject_array =\r",
+                  "    [\r",
+                  "        {\r",
+                  "            \"id\": \"01M67M3YR547ZHZY7HY964P3PZ1\",\r",
+                  "            \"name\": \"ForgeFlex Tools 1\",\r",
+                  "            \"price\": 10.0\r",
+                  "        },\r",
+                  "        {\r",
+                  "\r",
+                  "            \"id\": \"01M67M3YR547ZHZY7HY964P3PZ2\",\r",
+                  "            \"name\": \"ForgeFlex Tools 2\",\r",
+                  "            \"price\": 20.0\r",
+                  "        },\r",
+                  "        {\r",
+                  "            \"id\": \"01M67M3YR547ZHZY7HY964P3PZ3\",\r",
+                  "            \"name\": \"ForgeFlex Tools 3\",\r",
+                  "            \"price\": 30.0\r",
+                  "        }]\r",
+                  "    ;\r",
+                  "\r",
+                  "// console.log(\"my array has \" + myobject_array.data.length + \" objects\");\r",
+                  "\r",
+                  "console.log(myobject_array);\r",
+                  "\r",
+                  "pm.test(\"my object array price should ne a number\", function () {\r",
+                  "    pm.expect(myobject_array[0].price).to.be.a(\"number\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"my object array name should be a string\", function () {\r",
+                  "    pm.expect(myobject_array[0].name).to.be.a(\"string\");\r",
+                  "});\r",
+                  "\r",
+                  "console.log(myobject_array.length);\r",
+                  "console.log(myobject_array[0]);\r",
+                  "console.log(myobject_array[2]);\r",
+                  "\r",
+                  "///\r",
+                  "let myarray_array = {\r",
+                  "    data: [\r",
+                  "        {\r",
+                  "            \"id\": \"01M67M3YR547ZHZY7HY964P3PZ1\",\r",
+                  "            \"name\": \"ForgeFlex Tools 1\"\r",
+                  "        },\r",
+                  "        {\r",
+                  "            \"id\": \"01M67M3YR547ZHZY7HY964P3PZ2\",\r",
+                  "            \"name\": \"ForgeFlex Tools 2\"\r",
+                  "        },\r",
+                  "        {\r",
+                  "            id: \"01M67M3YR547ZHZY7HY964P3PZ3\",\r",
+                  "            name: \"ForgeFlex Tools 3\"\r",
+                  "        }]\r",
+                  "};\r",
+                  "\r",
+                  "console.log(myarray_array);\r",
+                  "console.log(myarray_array.data.length);\r",
+                  "console.log(myarray_array.data[0]);\r",
+                  "console.log(myarray_array.data[2]);\r",
+                  "\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_Url}}/products",
+              "host": [
+                "{{base_Url}}"
+              ],
+              "path": [
+                "products"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "coll_new_prod_id",
+      "value": ""
+    }
+  ]
+}
