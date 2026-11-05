@@ -37,7 +37,7 @@ POST / products
 **POST /products**
 
 1. **Success code mismatch (documentation, low).** The spec documents 200 for a successful create. The API returns 201 (asserted in "Create prod - valid"). 201 is the correct code for a create, so the spec should be updated.
-2. **Creates allowed without authentication (security, high).** POST /products creates a product with no token. The spec also documents no 401 or 403 response, so it does not state any auth requirement for this endpoint.
+2. **Creates allowed without authentication (security, high).** POST /products creates a product with no token. The spec also documents no 401 or 403 response, so it does not state any auth requirement for this endpoint. Asserted by “[KNOWN BUG] Create prod - no token”, which fails until this is fixed.
 3. **422 error format not documented (documentation, low).** `UnprocessableEntityResponse` has a description but no schema. Actual format: `{ "price": ["The price field must be a number."] }`. Asserted in "Create prod - price is text".
 
 ## Assertions
