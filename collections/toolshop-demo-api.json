@@ -965,7 +965,7 @@
           "response": []
         },
         {
-          "name": "Create prod - price is text Copy",
+          "name": "Create prod - price is text",
           "event": [
             {
               "listen": "test",
@@ -993,6 +993,67 @@
             "body": {
               "mode": "raw",
               "raw": "{\r\n  \"name\": \"{{$randomProductName}}\",\r\n  \"description\": \"Negative test: price is text\",\r\n  \"price\": \"abc\",\r\n  \"brand_id\": \"{{brand_id}}\",\r\n  \"category_id\": \"{{category_id}}\",\r\n  \"product_image_id\": \"{{product_image_id}}\",\r\n  \"is_location_offer\": false,\r\n  \"is_rental\": false,\r\n  \"co2_rating\": \"A\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_Url}}/products",
+              "host": [
+                "{{base_Url}}"
+              ],
+              "path": [
+                "products"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "92 Data-driven - product create",
+      "item": [
+        {
+          "name": "Create prod - data-driven",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const caseName = pm.iterationData.get(\"casename\");\r\nlet name = pm.iterationData.get(\"name\") ?? \"\";\r\nconst rawPrice = pm.iterationData.get(\"price\");\r\n\r\n// \"LEN:120\" in the CSV means: generate a name that is exactly 120 characters long\r\nif (name.startsWith(\"LEN:\")) {\r\n    name = \"a\".repeat(Number(name.slice(4)));\r\n}\r\n\r\npm.variables.set(\"name\", name);\r\n\r\n// Numbers go into the body as numbers; anything else goes in as quoted text\r\nconst priceIsNumber = rawPrice !== \"\" && !isNaN(Number(rawPrice));\r\npm.variables.set(\"price_json\", priceIsNumber ? rawPrice : JSON.stringify(rawPrice));\r\n\r\nconsole.log(`${caseName}: name length ${name.length}, price ${rawPrice}`);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const caseName = pm.iterationData.get(\"casename\");\r\nconst expected = Number(pm.iterationData.get(\"expectedStatus\"));\r\n\r\nlet body = {};\r\ntry { body = pm.response.json(); } catch (e) { console.log(\"Response is not JSON\"); }\r\nconsole.log(caseName, pm.response.code, body);\r\n\r\npm.test(`${caseName}: returns ${expected}`, function () {\r\n    pm.expect(pm.response.code).to.equal(expected);\r\n});\r\n\r\nif (pm.response.code === 201 && body.id) {\r\n    pm.test(`${caseName}: saved values match what was sent`, function () {\r\n        pm.expect(body.name).to.equal(pm.variables.get(\"name\"));\r\n        pm.expect(Number(body.price)).to.equal(Number(pm.iterationData.get(\"price\")));\r\n    });\r\n\r\n    // Cleanup: delete what was created\r\n    pm.sendRequest({\r\n        url: pm.environment.get(\"base_Url\") + \"/products/\" + body.id,\r\n        method: \"DELETE\",\r\n        header: { Authorization: \"Bearer \" + pm.environment.get(\"admin_auth_token\") }\r\n    }, function (err, res) {\r\n        console.log(`Cleanup ${caseName} (${body.id}):`, err ? err : res.code);\r\n    });\r\n}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"{{name}}\",\r\n  \"description\": \"Data-driven test: {{casename}}\",\r\n  \"price\": {{price_json}},\r\n  \"brand_id\": \"{{brand_id}}\",\r\n  \"category_id\": \"{{category_id}}\",\r\n  \"product_image_id\": \"{{product_image_id}}\",\r\n  \"is_location_offer\": false,\r\n  \"is_rental\": false,\r\n  \"co2_rating\": \"A\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1158,67 +1219,6 @@
           "request": {
             "method": "GET",
             "header": [],
-            "url": {
-              "raw": "{{base_Url}}/products",
-              "host": [
-                "{{base_Url}}"
-              ],
-              "path": [
-                "products"
-              ]
-            }
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "92 Data-driven - product create",
-      "item": [
-        {
-          "name": "Create prod - data-driven",
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "const caseName = pm.iterationData.get(\"casename\");\r\nlet name = pm.iterationData.get(\"name\") ?? \"\";\r\nconst rawPrice = pm.iterationData.get(\"price\");\r\n\r\n// \"LEN:120\" in the CSV means: generate a name that is exactly 120 characters long\r\nif (name.startsWith(\"LEN:\")) {\r\n    name = \"a\".repeat(Number(name.slice(4)));\r\n}\r\n\r\npm.variables.set(\"name\", name);\r\n\r\n// Numbers go into the body as numbers; anything else goes in as quoted text\r\nconst priceIsNumber = rawPrice !== \"\" && !isNaN(Number(rawPrice));\r\npm.variables.set(\"price_json\", priceIsNumber ? rawPrice : JSON.stringify(rawPrice));\r\n\r\nconsole.log(`${caseName}: name length ${name.length}, price ${rawPrice}`);"
-                ]
-              }
-            },
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "const caseName = pm.iterationData.get(\"casename\");\r\nconst expected = Number(pm.iterationData.get(\"expectedStatus\"));\r\n\r\nlet body = {};\r\ntry { body = pm.response.json(); } catch (e) { console.log(\"Response is not JSON\"); }\r\nconsole.log(caseName, pm.response.code, body);\r\n\r\npm.test(`${caseName}: returns ${expected}`, function () {\r\n    pm.expect(pm.response.code).to.equal(expected);\r\n});\r\n\r\nif (pm.response.code === 201 && body.id) {\r\n    pm.test(`${caseName}: saved values match what was sent`, function () {\r\n        pm.expect(body.name).to.equal(pm.variables.get(\"name\"));\r\n        pm.expect(Number(body.price)).to.equal(Number(pm.iterationData.get(\"price\")));\r\n    });\r\n\r\n    // Cleanup: delete what was created\r\n    pm.sendRequest({\r\n        url: pm.environment.get(\"base_Url\") + \"/products/\" + body.id,\r\n        method: \"DELETE\",\r\n        header: { Authorization: \"Bearer \" + pm.environment.get(\"admin_auth_token\") }\r\n    }, function (err, res) {\r\n        console.log(`Cleanup ${caseName} (${body.id}):`, err ? err : res.code);\r\n    });\r\n}"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{admin_auth_token}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n  \"name\": \"{{name}}\",\r\n  \"description\": \"Data-driven test: {{casename}}\",\r\n  \"price\": {{price_json}},\r\n  \"brand_id\": \"{{brand_id}}\",\r\n  \"category_id\": \"{{category_id}}\",\r\n  \"product_image_id\": \"{{product_image_id}}\",\r\n  \"is_location_offer\": false,\r\n  \"is_rental\": false,\r\n  \"co2_rating\": \"A\"\r\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
             "url": {
               "raw": "{{base_Url}}/products",
               "host": [
