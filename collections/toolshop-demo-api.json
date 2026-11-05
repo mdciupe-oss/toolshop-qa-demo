@@ -136,6 +136,43 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "Set environment variables",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();\r\nconst first_category = body.data[0].category;\r\nconst first_brand = body.data[0].brand;\r\nconst first_product_image = body.data[0].product_image;\r\n\r\npm.environment.set(\"category_id\", first_category.id);\r\npm.environment.set(\"brand_id\", first_brand.id);\r\npm.environment.set(\"product_image_id\", first_product_image.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_Url}}/products",
+              "host": [
+                "{{base_Url}}"
+              ],
+              "path": [
+                "products"
+              ]
+            }
+          },
+          "response": []
         }
       ]
     },
@@ -148,19 +185,10 @@
             {
               "listen": "test",
               "script": {
-                "exec": [
-                  "const body = pm.response.json();\r",
-                  "const first_category = body.data[0].category;\r",
-                  "const first_brand = body.data[0].brand;\r",
-                  "const first_product_image = body.data[0].product_image;\r",
-                  "\r",
-                  "pm.environment.set(\"category_id\", first_category.id);\r",
-                  "pm.environment.set(\"brand_id\", first_brand.id);\r",
-                  "pm.environment.set(\"product_image_id\", first_product_image.id);"
-                ],
                 "type": "text/javascript",
-                "packages": {},
-                "requests": {}
+                "exec": [
+                  ""
+                ]
               }
             }
           ],
@@ -848,7 +876,55 @@
     },
     {
       "name": "90 Negative Tests",
-      "item": []
+      "item": [
+        {
+          "name": "Create prod - price is text",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();\r\nconsole.log(body);\r\n\r\npm.test(\"Status code is 422\", function () {\r\n    pm.response.to.have.status(422);\r\n});\r\n\r\npm.test(\"Error is reported on the price field\", function () {\r\n    pm.expect(body).to.have.property(\"price\");\r\n    pm.expect(body.price).to.be.an(\"array\").that.is.not.empty;\r\n    pm.expect(body.price[0]).to.include(\"must be a number\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"{{$randomProductName}}\",\r\n  \"description\": \"Negative test: price is text\",\r\n  \"price\": \"abc\",\r\n  \"brand_id\": \"{{brand_id}}\",\r\n  \"category_id\": \"{{category_id}}\",\r\n  \"product_image_id\": \"{{product_image_id}}\",\r\n  \"is_location_offer\": false,\r\n  \"is_rental\": false,\r\n  \"co2_rating\": \"A\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_Url}}/products",
+              "host": [
+                "{{base_Url}}"
+              ],
+              "path": [
+                "products"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
     },
     {
       "name": "99 Scratch",
