@@ -39,6 +39,9 @@ POST / products
 1. **Success code mismatch (documentation, low).** The spec documents 200 for a successful create. The API returns 201 (asserted in "Create prod - valid"). 201 is the correct code for a create, so the spec should be updated.
 2. **Product create has no authentication or authorization check (security, high).** POST /products creates a product with no token, and also with a customer token. Only admins should be able to create products. The spec documents no 401 or 403 response for this endpoint. Asserted by "[KNOWN BUG] Create prod - no token" (expects 401) and "[KNOWN BUG] Create prod - customer token" (expects 403), which fail until this is fixed.
 3. **422 error format not documented (documentation, low).** `UnprocessableEntityResponse` has a description but no schema. Actual format: `{ "price": ["The price field must be a number."] }`. Asserted in "Create prod - price is text".
+4. **Negative prices are accepted (data validation, high).** POST /products creates a product with price -5. Asserted by the negativePrice row in data/products.csv.
+5. **Product name limit is undocumented (documentation, low).** The API accepts 120 characters and rejects 121 with 422. The spec states no maximum length. Asserted by the maxName and nameTooLong rows.
+6. **Open question: is a price of 0 allowed?** The API accepts 0. The spec does not say whether free products are valid. The zeroPrice row expects 422 until the product owner decides.
 
 ## Assertions
 - response is JSON
