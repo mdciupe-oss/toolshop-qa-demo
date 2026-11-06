@@ -1,4 +1,5 @@
 # Toolshop API Test Automation
+[![API tests](https://github.com/mdciupe-oss/toolshop-qa-demo/actions/workflows/api-tests.yml/badge.svg)](https://github.com/mdciupe-oss/toolshop-qa-demo/actions/workflows/api-tests.yml)
 
 Automated API tests for the Practice Software Testing Toolshop, a public demo store, built with Postman and run from the command line with Newman.
 
@@ -12,8 +13,9 @@ Automated API tests for the Practice Software Testing Toolshop, a public demo st
 - Known issues kept in a separate folder and data file, so the main suite
   stays green and still fails on new problems
 - Six documented findings (see Findings)
+- GitHub Actions runs the core and data-driven suites on every push and pull request; known issues run in a separate job that is allowed to fail. Passwords come from repository secrets.
 
-Planned: GitHub Actions pipeline, Playwright UI tests, JMeter performance tests.
+Planned: Playwright UI tests, JMeter performance tests.
 
 ## Application under test
 - UI: https://practicesoftwaretesting.com
@@ -54,6 +56,8 @@ Known issues (failures expected):
 
 The demo site's published test password is listed in the Toolshop project's own documentation.
 All other variables are set in the environment template or captured by 00 Setup.
+
+The same three commands run automatically in GitHub Actions (see `.github/workflows/api-tests.yml`).
 
 ## Test approach
 API first: business rules and validation are checked at the API layer, where
