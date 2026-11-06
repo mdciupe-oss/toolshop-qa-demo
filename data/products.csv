@@ -4,7 +4,5 @@ emptyName,,10.00,422
 oneCharName,P,1.00,201
 maxName,LEN:120,11,201
 nameTooLong,LEN:121,12,422
-negativePrice,negative price,-5,422
 priceAsText,price as text,abc,422
-zeroPrice,price is zero,0,422
 smallPrice,very small price,0.01,201

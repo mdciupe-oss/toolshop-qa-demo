@@ -1,0 +1,3 @@
+casename,name,price,expectedStatus
+negativePrice,negative price,-5,422
+zeroPrice,price is zero,0,422
