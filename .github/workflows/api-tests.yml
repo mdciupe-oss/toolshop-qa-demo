@@ -1,0 +1,56 @@
+name: API tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install -g newman
+
+      - name: Core API suite
+        run: >
+          newman run collections/toolshop-demo-api.json
+          -e environments/demo.template.json
+          --env-var "admin_pwd=${{ secrets.ADMIN_PWD }}"
+          --env-var "customer_pwd=${{ secrets.CUSTOMER_PWD }}"
+          --folder "00 Setup" --folder "01 Products" --folder "02 Brands"
+          --folder "03 Categories" --folder "04 Users" --folder "05 Prod CRUD"
+          --folder "06 Prod CRUD - collection id" --folder "90 Negative Tests"
+
+      - name: Data-driven product create
+        if: always()
+        run: >
+          newman run collections/toolshop-demo-api.json
+          -e environments/demo.template.json
+          --env-var "admin_pwd=${{ secrets.ADMIN_PWD }}"
+          --env-var "customer_pwd=${{ secrets.CUSTOMER_PWD }}"
+          -d data/products.csv
+          --folder "00 Setup" --folder "92 Data-driven - product create"
+
+  known-issues:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install -g newman
+
+      - name: Known bugs and open questions
+        run: >
+          newman run collections/toolshop-demo-api.json
+          -e environments/demo.template.json
+          --env-var "admin_pwd=${{ secrets.ADMIN_PWD }}"
+          --env-var "customer_pwd=${{ secrets.CUSTOMER_PWD }}"
+          -d data/products-known-issues.csv
+          --folder "00 Setup" --folder "91 Known issues"
